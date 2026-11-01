@@ -146,6 +146,3 @@ python3 bench/report.py /tmp/out      # compiles everything, writes /tmp/report/
 | [PERFORMANCE.md](PERFORMANCE.md) | measured timings, the write-cost floor, and nine performance traps |
 | [libs/README.md](libs/README.md) | calling interface for the embedded engine |
 
-## License
-
-Unspecified. Contact the author before use.
