@@ -137,15 +137,31 @@ python3 bench/report.py /tmp/out      # compiles everything, writes /tmp/report/
 
 ## Documentation
 
+### English
+
 | File | Contents |
 |---|---|
 | [USAGE.md](USAGE.md) | every command with examples, output layout, modes, progress protocol, troubleshooting |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | layering, data flow, key structures, threading model, extension points |
 | [SECURITY.md](SECURITY.md) | threat model, defensive measures, resource limits, Android exec caveat, supply chain |
 | [DELIVERY.md](DELIVERY.md) | capability list and the root cause of every significant bug fixed |
-| [PERFORMANCE.md](PERFORMANCE.md) | measured timings, the write-cost floor, and nine performance traps |
+| [PERFORMANCE.md](PERFORMANCE.md) | measured timings, the write-cost floor, and performance traps |
+| [CHANGELOG.md](CHANGELOG.md) | release history |
 | [libs/README.md](libs/README.md) | calling interface for the embedded engine |
+
+### 中文
+
+The complete Chinese documentation is available under [`CN/`](CN/):
+
+- [中文项目说明](CN/README.md)
+- [中文使用说明](CN/USAGE.md)
+- [中文架构说明](CN/ARCHITECTURE.md)
+- [中文安全说明](CN/SECURITY.md)
+- [中文交付说明](CN/DELIVERY.md)
+- [中文性能说明](CN/PERFORMANCE.md)
+- [中文更新日志](CN/CHANGELOG.md)
+- [中文嵌入式引擎接口](CN/libs/README.md)
 
 ## License
 
-[MIT](LICENSE) © 2024 
+MIT License © 2024. See [LICENSE](LICENSE) for the full license text.

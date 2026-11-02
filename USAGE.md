@@ -75,6 +75,15 @@ out/
   `android:compileSdkVersion`, not `targetSdk`). It describes the APK, not the
   original source layout.
 - **`local.properties`** contains a placeholder `sdk.dir`; point it at your SDK.
+- **`/* STUB: not the real value */`** marks every method whose body could not be
+  recovered. A method without this marker is real recovered code; with it, the
+  `return 0` / `return null` is a placeholder. With `--strict` those methods throw
+  instead. The default `--bodies` path only emits a recovered body when the SSA
+  pipeline proves the method shape is supported; otherwise it emits this marker
+  instead of shipping guessed Java.
+- `TACHYON_EXPERIMENTAL_SSA=1` enables the SSA body pipeline for controlled
+  development/quality samples. `TACHYON_LEGACY_BODIES=1` enables the old
+  best-effort renderer for diagnostics only; it is not the safe release path.
 - **Stub files** are empty declarations for types the APK referenced but did not
   carry. If something calls a method on a stub, that call will not compile — the
   stub only asserts that the type exists.
@@ -88,6 +97,7 @@ out/
 | `balanced` | default |
 | `accurate` | adds cross-dex supertype walks that catch rare override shapes |
 | `max` | **experimental**: workers = CPU count × 4. Desktop only, do not run on a phone |
+| `--strict` | undecoded method bodies throw `UnsupportedOperationException` instead of returning `0`/`null`. Use this when the output will be executed: a stub that returns a value looks like a real result and silently poisons whatever consumes it |
 
 ## Progress protocol
 
@@ -113,6 +123,7 @@ Exit codes: `0` all classes written, `1` some class failed (details on stderr),
 ```sh
 tachyon d app.apk -o /tmp/out
 python3 bench/report.py /tmp/out
+make quality                  # controlled Java -> DEX -> compile/semantic check
 ```
 
 `report.py` compiles the whole tree with `javac` against `android-34` and writes
