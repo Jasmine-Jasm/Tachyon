@@ -16,7 +16,7 @@ A pure C11 multi-format decompiler with zero third-party dependencies
 
 | Metric | Value |
 |---|---:|
-| Decompilation | **3.5 s** with 8 threads |
+| Decompilation | **approximately 4–6 s** with 8 threads, depending on filesystem load |
 | `javac` pass rate | **100.00%** (15,235 / 15,235) |
 | Failed files | **0** |
 | Output | 15,216 classes + 19 stubs + 4 project files |
@@ -173,6 +173,8 @@ generation.
 
 ### 6. Method-body decompilation (`--bodies`)
 
+The current release includes three recovery rounds: guarded SSA emission, type-boundary and performance improvements, and supported explicit throw/catch recovery. The GUI is documented separately in `USAGE.md` and launched with `make gui`.
+
 The first stage of method-body reconstruction now includes:
 
 - `src/ir/ssa.c` / `src/ir/ssa.h`: normalized instruction streams on top of the
@@ -188,17 +190,17 @@ The first stage of method-body reconstruction now includes:
   supported method shapes.
 
 The current controlled quality baseline reports `javac_errors=0` in default,
-strict, and bodies modes, with `semantic_match=True` for the experimental SSA
-body run. The complete `source.apk` target compiles 15,235/15,235 files in both
-default and release `--bodies` modes.
+strict, and bodies modes, with `semantic_match=True` for the SSA body run. The
+complete `source.apk` target compiles 15,235/15,235 files in both default and
+release `--bodies` modes.
 
 The release path emits a real body only when the SSA emitter can prove that the
 shape is supported. Otherwise it emits a marked `STUB`. The old best-effort
 renderer is diagnostic-only and requires `TACHYON_LEGACY_BODIES=1`.
 
-The next stage is to expand type refinement, structured regions, complex exception
-handling, platform signatures, and large obfuscated methods. A comprehensive
-claim of outperforming JADX has not been established.
+The next stage is to expand structured regions, complex exception handling,
+platform signatures, and large obfuscated methods. A comprehensive claim of
+outperforming JADX has not been established.
 
 ## Major bugs and root causes fixed in this cycle
 

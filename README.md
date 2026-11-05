@@ -4,7 +4,7 @@ A multi-format decompiler written in pure C11. No third-party dependencies, a
 single binary, embeddable.
 
 ```
-source.apk      15216 classes      3.5 s     javac pass rate 100.00%
+source.apk      15216 classes      ~4–6 s     javac pass rate 100.00%
 WeChat 8.0.79   253230 classes    47.8 s     0 failures
 ```
 
@@ -54,6 +54,18 @@ Python / C examples, and the Android SELinux caveat — is in
 
 Individual engine modules can also be compiled into other programs. The headers
 are the interface, and the modules do not depend on each other.
+
+## GUI
+
+A zero-dependency local browser GUI is included:
+
+```sh
+make gui
+# or
+python3 gui/tachyon_gui.py --bin /tmp/tbuild/tachyon
+```
+
+It provides APK/DEX input, output directory, threads, mode, method-body recovery, strict mode, merge mode, live progress, logs, and stop controls while reusing the existing CLI engine.
 
 ## CLI
 
@@ -148,6 +160,8 @@ python3 bench/report.py /tmp/out      # compiles everything, writes /tmp/report/
 | [PERFORMANCE.md](PERFORMANCE.md) | measured timings, the write-cost floor, and performance traps |
 | [CHANGELOG.md](CHANGELOG.md) | release history |
 | [libs/README.md](libs/README.md) | calling interface for the embedded engine |
+| [gui/index.html](gui/index.html) | local browser GUI |
+| [gui/tachyon_gui.py](gui/tachyon_gui.py) | GUI launcher and local API |
 
 ### 中文
 

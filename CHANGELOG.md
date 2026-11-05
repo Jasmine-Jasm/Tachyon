@@ -2,113 +2,78 @@
 
 All notable changes to Tachyon are documented in this file.
 
-## [0.5] - 2026-11-02
+## [0.5] - 2026-11-05
 
-### Highlights
+Tachyon v0.5 consolidates three compressed development rounds focused on safe SSA body recovery, type correctness, exception handling, performance, and a bilingual local GUI.
 
-- Introduced the first production-safe SSA-based method-body recovery pipeline.
-- Restored 100% Java compilation for the complete `source.apk` validation target.
-- Added semantic execution comparison for controlled Java-to-DEX quality samples.
-- Replaced unsafe best-effort body output with explicit, traceable stubs when a method cannot be safely recovered.
+### Round 1 — SSA and Safe Body Recovery
 
-### Added
+- Added the guarded SSA-based method-body recovery pipeline.
+- Added SSA values, phi nodes, def/use tracking, dominator-based renaming, and worklist type inference.
+- Added verified emission for linear methods, calls, `move-result`, branches, loops, switches, constructors, arrays, `instanceof`, numeric conversions, enums, inner classes, anonymous classes, varargs, and generic casts.
+- Fixed multi-dimensional array Java generation.
+- Added safe `STUB` fallback when a method cannot be proven recoverable.
+- Added controlled semantic comparison in `bench/quality.py` and extended quality fixtures.
 
-- SSA value construction and version tracking.
-- Phi-node construction and dominator-based renaming.
-- Def/use tracking and SSA validation.
-- Worklist-based type inference for:
-  - parameters and receivers;
-  - field accesses;
-  - method invocation results;
-  - arrays;
-  - casts;
-  - returns;
-  - phi values;
-  - exception handlers.
-- A guarded SSA body emitter supporting verified method shapes, including:
-  - linear methods;
-  - method calls and `move-result` values;
-  - conditional branches;
-  - loops;
-  - packed and sparse switches;
-  - simple constructors;
-  - basic exception handling;
-  - enums;
-  - inner classes;
-  - anonymous classes;
-  - varargs;
-  - generic casts.
-- New controlled quality coverage in:
-  - `tests/quality/QualitySample.java`;
-  - `tests/quality/AdvancedSample.java`.
-- Semantic output comparison in `bench/quality.py`.
-- SSA smoke coverage integrated into `make test`.
-- Additional DEX decoding coverage for `32x`, `45cc`, `4rcc`, `31t`, switch payloads, wide values, range invokes, and large instruction addresses.
+### Round 2 — Type Boundaries and Performance
 
-### Changed
+- Fixed DEX parameter-register mapping, including wide `long` and `double` parameters.
+- Added type-aware conversion at method-call, return, field-write, and array-write boundaries.
+- Added Def/Use indexing to avoid repeated full-instruction scans during type propagation.
+- Added early size checks before expensive SSA work on methods that cannot be emitted safely.
+- Improved writer directory handling with cached directory file descriptors.
+- Preserved the safe release path while restoring full APK processing to the approximately 4–6 second range on the validation machine.
 
-- The default `--bodies` path now emits a recovered method body only when the SSA pipeline proves that the method shape is supported.
-- Methods outside the verified SSA coverage are emitted as explicit stubs instead of guessed Java code.
-- `--strict` continues to replace undecoded return-value stubs with `UnsupportedOperationException`.
-- The legacy best-effort body renderer is no longer part of the safe release path.
-- The legacy renderer is available only for diagnostics through:
+### Round 3 — Exception and Region Recovery
 
-  ```sh
-  TACHYON_LEGACY_BODIES=1
-  ```
+- Added explicit `throw` emission for supported SSA methods.
+- Added `move-exception` handling in supported catch handlers.
+- Added `Throwable` and concrete-exception compatibility during type inference.
+- Added controlled throw/catch semantic coverage.
+- Complex `finally`, `synchronized`, multi-region, and unsupported exception structures continue to fall back safely.
 
-- The experimental SSA body pipeline can be enabled for controlled development and quality runs through:
+### Bilingual GUI
 
-  ```sh
-  TACHYON_EXPERIMENTAL_SSA=1
-  ```
-
-- Build dependency tracking now includes generated header dependencies, reducing stale-object issues after structure changes.
-- Quality fixtures now cover receiver handling, invocation results, same-register reads and writes, branches, loops, switches, try/catch, enums, nested classes, anonymous classes, varargs, and generic casts.
-
-### Fixed
-
-- Incorrect receiver-register rendering that could generate assignments to `this`.
-- Incorrect handling of parameters reused as local registers.
-- Incorrect versioning for same-register field reads and writes.
-- Incorrect `null` comparisons for reference registers in zero-comparison branches.
-- Lost types after `move-result` instructions.
-- Missing casts for `check-cast` instructions.
-- Invalid Java output for filled-array instructions.
-- Missing interfaces on anonymous classes.
-- Illegal Java identifiers generated from synthetic names containing `-`.
-- Incorrect DEX instruction lengths and register decoding for several extended formats.
-- Incorrect relative-address handling for switch payloads.
-- Potential pointer truncation caused by implicit function declarations.
-- Multiple SSA validation cases that could previously fail silently, including invalid registers, duplicate definitions, allocation failures, and bare `move-result` instructions.
+- Added a zero-dependency local browser GUI under `gui/`.
+- Added English and Chinese language switching without changing the CLI or engine.
+- Added browser-local configuration persistence.
+- Added APK/DEX input, output directory, worker count, mode, `--bodies`, `--strict`, and `--merge` controls.
+- Added Fast, Balanced, and Accurate presets.
+- Added command preview, example configuration, live progress, stdout/stderr logs, clear-log, reset-configuration, and stop controls.
+- Added `make gui` as the standard launcher.
 
 ### Validation
 
-The `0.5` implementation was validated with:
-
 - Controlled quality samples:
-  - `javac_errors=0` in default, strict, and bodies modes;
-  - `semantic_match=True` for the SSA bodies run.
-- `make test`:
-  - command checks passed;
-  - invalid-input checks passed;
-  - truncated-input checks passed;
-  - concurrent-output consistency checks passed;
-  - SSA smoke test passed.
-- Strict compilation with `-Werror=implicit-function-declaration`.
-- AddressSanitizer and UndefinedBehaviorSanitizer on the controlled body-decompilation run.
+  - default, strict, and bodies modes: `javac_errors=0`;
+  - SSA bodies semantic comparison: `semantic_match=True`.
+- `make test` passed.
+- SSA smoke tests passed.
+- Strict compilation with `-Werror=implicit-function-declaration` passed.
+- ASAN and UBSAN controlled runs passed.
 - Full `source.apk` validation:
   - 15,235 Java files generated;
-  - 15,235 / 15,235 files compiled successfully in default mode;
-  - 15,235 / 15,235 files compiled successfully with `--bodies`;
+  - 15,235 / 15,235 compiled successfully in default mode;
+  - 15,235 / 15,235 compiled successfully with `--bodies`;
   - zero `javac` errors in both modes;
-  - approximately 4.1 seconds wall-clock time on the validation environment.
+  - current validation wall-clock range: approximately 4–6 seconds depending on filesystem load.
+- GUI smoke validation passed:
+  - Python syntax compilation;
+  - local page serving;
+  - status API;
+  - invalid-input validation;
+  - language switching;
+  - preset command preview;
+  - core CLI regression after GUI integration.
+
+### License
+
+MIT License © 2024. See [LICENSE](LICENSE).
 
 ### Limitations
 
-- A 100% compilation rate does not mean that every method body has been semantically recovered.
+- A 100% compilation rate does not mean every method body has been semantically recovered.
 - Complex or insufficiently proven methods intentionally receive an explicit `STUB` marker.
-- Large obfuscated methods, complex generic overloads, platform API signatures, nested exception regions, and advanced control-flow structures remain conservative areas.
-- The current release has not yet been established to outperform JADX through a same-input, per-method semantic benchmark.
-- The binary version macro and build metadata should be updated separately if the release is to be branded as `0.5` at runtime.
-
+- Large obfuscated methods, complex generic overloads, platform API gaps, nested exception regions, and advanced control-flow structures remain conservative areas.
+- A same-input, per-method semantic benchmark has not yet established full parity with or superiority over JADX.
+- The runtime version macro remains a separate release-configuration decision and should be changed to `0.5.0` before publishing a binary branded with that version.

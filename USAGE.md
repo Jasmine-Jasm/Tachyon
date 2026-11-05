@@ -26,6 +26,18 @@ aarch64-linux-gnu-gcc -O2 -std=c11 -D_GNU_SOURCE -Isrc \
     src/*.c src/*/*.c src/*/*/*.c -lpthread -lm
 ```
 
+## GUI
+
+The project includes a zero-dependency local browser GUI. It starts a local HTTP server and runs the existing CLI binary; the decompiler engine remains unchanged.
+
+```sh
+make gui
+# or
+python3 gui/tachyon_gui.py --bin /tmp/tbuild/tachyon
+```
+
+The GUI supports APK/DEX input, output directory, worker count, mode, `--bodies`, `--strict`, `--merge`, live progress, logs, and stopping a running job. It binds to `127.0.0.1:8765` by default. Use `--no-browser` when launching from a headless environment.
+
 ## Commands
 
 ### `d` — decompile
